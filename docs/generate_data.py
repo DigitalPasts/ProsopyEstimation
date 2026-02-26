@@ -8,7 +8,7 @@ Run from the docs/ directory:
 
 Prerequisites (place these files before running):
   ../data/output/estimation_results.csv
-  ../data/output/validation_results_after_correction_17.csv
+  ../data/output/validation_results_after_correction.csv
   ../data/input/preprocessed_whole_data.csv  (from ProsopyBase)
 """
 
@@ -17,7 +17,7 @@ import os
 import pandas as pd
 
 ESTIMATION_PATH    = '../data/output/estimation_results.csv'
-VALIDATION_PATH    = '../data/output/validation_results_after_correction_17.csv'
+VALIDATION_PATH    = '../data/output/validation_results_after_correction.csv'
 PREPROCESSED_PATH  = '../data/input/preprocessed_whole_data.csv'
 OUTPUT_DIR         = 'data'
 
