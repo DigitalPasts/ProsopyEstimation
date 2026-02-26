@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProsopyEstimation — Dating Neo-Babylonian Tablets</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #2B7BB9;
+      --orange:  #E8862C;
+      --gray:    #9CA3AF;
+      --green:   #22A06B;
+      --red:     #D63F2C;
+      --navy:    #1A365D;
+      --bg:      #F8F9FB;
+      --card:    #FFFFFF;
+      --border:  #E5E7EB;
+      --text:    #111827;
+      --muted:   #6B7280;
+      --radius:  10px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy);
+      color: #fff;
+      padding: 3.5rem 2rem 3rem;
+      text-align: center;
+    }
+    header .kicker {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #93C5FD;
+      margin-bottom: 0.75rem;
+    }
+    header h1 {
+      font-family: 'Crimson Pro', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 600;
+      line-height: 1.2;
+      max-width: 760px;
+      margin: 0 auto 1rem;
+    }
+    header p {
+      font-size: 1.05rem;
+      color: #CBD5E1;
+      max-width: 640px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+
+    /* ── Summary Stats ── */
+    .stats-bar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+    .stats-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .stat {
+      text-align: center;
+      flex: 1 1 160px;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+    .stat-value.blue   { color: var(--blue);   }
+    .stat-value.orange { color: var(--orange); }
+    .stat-value.gray   { color: var(--gray);   }
+    .stat-value.green  { color: var(--green);  }
+
+    /* ── Sections ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem 2.5rem;
+      margin-bottom: 2rem;
+    }
+    .section-header { margin-bottom: 1.5rem; }
+    .section-number {
+      display: inline-block;
+      background: var(--navy);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.6rem;
+    }
+    .section h2 {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.55rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+    .section .description {
+      font-size: 0.92rem;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    .chart-wrap { width: 100%; margin-top: 1.5rem; }
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 680px) { .chart-row { grid-template-columns: 1fr; } }
+
+    .insight {
+      background: #EFF6FF;
+      border-left: 3px solid var(--blue);
+      border-radius: 0 6px 6px 0;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      color: #1E40AF;
+      margin-top: 1.25rem;
+    }
+    .insight strong { font-weight: 600; }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+
+    .spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <p class="kicker">ProsopyEstimation · Neo-Babylonian Prosopography</p>
+  <h1>Dating Undated Cuneiform Tablets Through Social Networks</h1>
+  <p>An iterative algorithm estimates the date of undated Neo-Babylonian legal documents by leveraging the known life spans of co-attested individuals — expanding the datable corpus by over 29%.</p>
+</header>
+
+<!-- ── Stats Bar ── -->
+<div class="stats-bar">
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-value" style="color:var(--text)">4,589</div>
+      <div class="stat-label">Total Tablets</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value blue">3,414</div>
+      <div class="stat-label">Pre-Dated (74.4%)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value orange">1,002</div>
+      <div class="stat-label">Newly Estimated (21.8%)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value gray">173</div>
+      <div class="stat-label">Unestimatable (3.8%)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value green">65.1%</div>
+      <div class="stat-label">Validation Accuracy</div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── Section 1: Timeline ── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <h2>Illuminating the Record: Temporal Gap-Filling</h2>
+      <p class="description">
+        The chart shows the distribution of tablets across time in 5-year intervals,
+        before and after estimation. Periods where the newly-dated tablets (orange) reach
+        highest relative to pre-dated ones (blue) represent the moments where the algorithm
+        had the greatest historical impact.
+      </p>
+    </div>
+    <div class="chart-wrap">
+      <div id="chart-timeline" class="spinner">Loading…</div>
+    </div>
+    <div class="insight" id="insight-timeline">Loading insight…</div>
+  </section>
+
+  <!-- ── Section 2: Archive Benefit ── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <h2>Which Archives Benefit Most?</h2>
+      <p class="description">
+        Each bar represents one archive's full tablet corpus, broken down by estimation
+        status. Archives are sorted by the share of newly-dated tablets (orange). Archives
+        with many undated documents — yet rich networks of witnesses — gain the most from
+        the algorithm.
+      </p>
+    </div>
+    <div class="chart-wrap">
+      <div id="chart-archives" class="spinner">Loading…</div>
+    </div>
+    <div class="insight" id="insight-archives">Loading insight…</div>
+  </section>
+
+  <!-- ── Section 3: Top People ── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <h2>The Network Anchors: Most Productive Individuals</h2>
+      <p class="description">
+        These are the people whose known date ranges anchored the most new estimations.
+        A person is counted if they appear in dated tablets (entering the "Yellow Pages"
+        reference) <em>and</em> also appear in tablets that were subsequently estimated.
+        Kings (👑) dominate because they appear as date references in many tablets;
+        non-royal figures reflect active business networks.
+      </p>
+    </div>
+    <div class="chart-wrap">
+      <div id="chart-people" class="spinner">Loading…</div>
+    </div>
+    <div class="insight" id="insight-people">Loading insight…</div>
+  </section>
+
+  <!-- ── Section 4: Validation ── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <h2>How Accurate Are Our Estimates?</h2>
+      <p class="description">
+        Leave-one-out cross-validation: each dated tablet is temporarily removed, its date
+        re-estimated from the remaining corpus, and the estimate compared to the known date.
+        <strong>Hit</strong> = the true date falls within the estimated range (±1 year tolerance).
+      </p>
+    </div>
+    <div class="chart-row">
+      <div>
+        <div id="chart-scatter" class="spinner">Loading…</div>
+      </div>
+      <div>
+        <div id="chart-deviation" class="spinner">Loading…</div>
+      </div>
+    </div>
+    <div class="insight" id="insight-validation">Loading insight…</div>
+  </section>
+
+</main>
+
+<footer>
+  Data: <a href="https://prosobab.leidenuniv.nl/" target="_blank">Prosobab — Prosopography of Babylonia (c. 620–330 BCE)</a> ·
+  Code: <a href="https://github.com/DigitalPasts/ProsopyEstimation" target="_blank">DigitalPasts/ProsopyEstimation</a>
+</footer>
+
+<script>
+const COLORS = {
+  blue:   '#2B7BB9',
+  orange: '#E8862C',
+  gray:   '#9CA3AF',
+  green:  '#22A06B',
+  red:    '#D63F2C',
+  navy:   '#1A365D',
+  gold:   '#D4A017',
+};
+
+const PLOTLY_CONFIG = { responsive: true, displayModeBar: false };
+
+const LAYOUT_BASE = {
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  plot_bgcolor:  'rgba(0,0,0,0)',
+  font: { family: 'Inter, sans-serif', size: 12, color: '#374151' },
+  margin: { t: 20, b: 50, l: 60, r: 20 },
+};
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function setInsight(id, html) {
+  document.getElementById(id).innerHTML = html;
+}
+
+async function loadJSON(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(`Failed to load ${path}: ${r.statusText}`);
+  return r.json();
+}
+
+// ── 1. Timeline ───────────────────────────────────────────────────────────────
+
+async function renderTimeline() {
+  const d = await loadJSON('data/timeline.json');
+
+  // Reverse bins so oldest (highest BCE number) is on the left
+  const labels = d.bins.map(b => b.toString());
+
+  const traces = [
+    {
+      x: d.bins, y: d.pre_dated,
+      name: 'Pre-dated', type: 'bar',
+      marker: { color: COLORS.blue, opacity: 0.85 },
+      hovertemplate: '%{x} BCE ±5yr<br>Pre-dated: %{y}<extra></extra>',
+    },
+    {
+      x: d.bins, y: d.newly_estimated,
+      name: 'Newly estimated', type: 'bar',
+      marker: { color: COLORS.orange, opacity: 0.85 },
+      hovertemplate: '%{x} BCE ±5yr<br>Newly estimated: %{y}<extra></extra>',
+    },
+  ];
+
+  const layout = {
+    ...LAYOUT_BASE,
+    barmode: 'overlay',
+    xaxis: {
+      title: 'Year (BCE)',
+      autorange: 'reversed',
+      ticksuffix: ' BCE',
+      showgrid: false,
+      zeroline: false,
+    },
+    yaxis: { title: 'Tablets (5-yr bins)', showgrid: true, gridcolor: '#F3F4F6' },
+    legend: { orientation: 'h', y: 1.08, x: 0 },
+    height: 380,
+    margin: { ...LAYOUT_BASE.margin, b: 60 },
+  };
+
+  Plotly.newPlot('chart-timeline', traces, layout, PLOTLY_CONFIG);
+
+  // Insight: find the 5-yr bin with the most new estimates
+  const maxIdx  = d.newly_estimated.indexOf(Math.max(...d.newly_estimated));
+  const maxBin  = d.bins[maxIdx];
+  const maxVal  = d.newly_estimated[maxIdx];
+  const preThere = d.pre_dated[maxIdx];
+  setInsight('insight-timeline',
+    `<strong>Peak newly-estimated period:</strong> ${maxBin}–${maxBin+5} BCE gained
+     <strong>${maxVal}</strong> newly-dated tablets, compared to ${preThere} pre-dated ones in the same window.
+     Overall, estimation increased the datable corpus by
+     <strong>${((d.summary.total_newly_estimated / d.summary.total_pre_dated) * 100).toFixed(1)}%</strong>.`
+  );
+}
+
+// ── 2. Archive Benefit ────────────────────────────────────────────────────────
+
+async function renderArchives() {
+  const d = await loadJSON('data/archive_benefit.json');
+
+  // Stacked horizontal bars; percentage labels on the right
+  const pct = d.pct_newly_dated;
+
+  const traces = [
+    {
+      y: d.archives, x: d.pre_dated,
+      name: 'Pre-dated', type: 'bar', orientation: 'h',
+      marker: { color: COLORS.blue },
+      hovertemplate: '%{y}<br>Pre-dated: %{x}<extra></extra>',
+    },
+    {
+      y: d.archives, x: d.newly_estimated,
+      name: 'Newly estimated', type: 'bar', orientation: 'h',
+      marker: { color: COLORS.orange },
+      hovertemplate: '%{y}<br>Newly estimated: %{x} (%{customdata}%)<extra></extra>',
+      customdata: pct,
+    },
+    {
+      y: d.archives, x: d.unestimatable,
+      name: 'Unestimatable', type: 'bar', orientation: 'h',
+      marker: { color: COLORS.gray, opacity: 0.7 },
+      hovertemplate: '%{y}<br>Unestimatable: %{x}<extra></extra>',
+    },
+  ];
+
+  const layout = {
+    ...LAYOUT_BASE,
+    barmode: 'stack',
+    xaxis: { title: 'Number of tablets', showgrid: true, gridcolor: '#F3F4F6' },
+    yaxis: { automargin: true, tickfont: { size: 10 }, showgrid: false },
+    legend: { orientation: 'h', y: 1.04, x: 0 },
+    height: Math.max(500, d.archives.length * 22 + 100),
+    margin: { t: 30, b: 60, l: 200, r: 20 },
+  };
+
+  Plotly.newPlot('chart-archives', traces, layout, PLOTLY_CONFIG);
+
+  // Insight: top archive by % newly dated
+  const maxPctIdx   = pct.indexOf(Math.max(...pct));
+  const topArchive  = d.archives[maxPctIdx];
+  const topPct      = pct[maxPctIdx];
+  const topNew      = d.newly_estimated[maxPctIdx];
+  const topTotal    = d.total[maxPctIdx];
+  setInsight('insight-archives',
+    `<strong>${topArchive}</strong> benefits the most, with <strong>${topPct}%</strong>
+     of its tablets newly dated (${topNew} out of ${topTotal}).
+     Archives sorted by share of newly-estimated tablets (orange).`
+  );
+}
+
+// ── 3. Most Productive People ─────────────────────────────────────────────────
+
+async function renderPeople() {
+  const people = await loadJSON('data/top_people.json');
+
+  // Sort ascending for horizontal bar (last item = tallest)
+  const sorted = [...people].sort((a, b) => a.newly_estimated_count - b.newly_estimated_count);
+
+  const colors = sorted.map(p => p.is_king ? COLORS.gold : COLORS.blue);
+  const names  = sorted.map(p => p.display_name);
+  const counts = sorted.map(p => p.newly_estimated_count);
+
+  const trace = {
+    type: 'bar',
+    orientation: 'h',
+    x: counts,
+    y: names,
+    marker: { color: colors },
+    hovertemplate: '%{y}<br>Tablets enabled: %{x}<extra></extra>',
+  };
+
+  const layout = {
+    ...LAYOUT_BASE,
+    xaxis: { title: 'Newly-estimated tablets enabled', showgrid: true, gridcolor: '#F3F4F6' },
+    yaxis: { automargin: true, tickfont: { size: 10 }, showgrid: false },
+    height: 560,
+    margin: { t: 20, b: 60, l: 280, r: 20 },
+    annotations: [{
+      xref: 'paper', yref: 'paper',
+      x: 1, y: 0, xanchor: 'right', yanchor: 'bottom',
+      text: '👑 = King/Royal · Blue = Individual',
+      showarrow: false,
+      font: { size: 10, color: '#6B7280' },
+    }],
+  };
+
+  Plotly.newPlot('chart-people', [trace], layout, PLOTLY_CONFIG);
+
+  const topPerson    = sorted[sorted.length - 1];
+  const topNonRoyal  = sorted.slice().reverse().find(p => !p.is_king);
+  setInsight('insight-people',
+    `<strong>${topPerson.display_name}</strong> anchored the most new datings
+     (${topPerson.newly_estimated_count} tablets). Among non-royal individuals,
+     <strong>${topNonRoyal ? topNonRoyal.display_name : '—'}</strong>
+     leads with ${topNonRoyal ? topNonRoyal.newly_estimated_count : '—'} tablets,
+     reflecting the dense business networks of their family archive.`
+  );
+}
+
+// ── 4. Validation Accuracy ────────────────────────────────────────────────────
+
+async function renderValidation() {
+  const d = await loadJSON('data/validation.json');
+  const s = d.summary;
+
+  // -- Scatter: actual vs estimated (sample to keep DOM light) --
+  function sampleArr(arr, n) {
+    if (arr.length <= n) return arr;
+    const step = arr.length / n;
+    return Array.from({ length: n }, (_, i) => arr[Math.floor(i * step)]);
+  }
+  const MAX_PTS = 600;
+  const hActual = sampleArr(d.scatter.hits.actual,   MAX_PTS);
+  const hCoe    = sampleArr(d.scatter.hits.coe,      MAX_PTS);
+  const mActual = sampleArr(d.scatter.misses.actual, MAX_PTS);
+  const mCoe    = sampleArr(d.scatter.misses.coe,    MAX_PTS);
+
+  // Perfect-prediction diagonal
+  const allYears = [...hActual, ...mActual];
+  const yMin = Math.min(...allYears) - 5;
+  const yMax = Math.max(...allYears) + 5;
+
+  const scatterTraces = [
+    {
+      type: 'scattergl', mode: 'markers',
+      x: hActual, y: hCoe,
+      name: `Hits (${s.hits})`,
+      marker: { color: COLORS.green, size: 4, opacity: 0.55 },
+      hovertemplate: 'Actual: %{x} BCE<br>Estimated: %{y} BCE<extra>Hit</extra>',
+    },
+    {
+      type: 'scattergl', mode: 'markers',
+      x: mActual, y: mCoe,
+      name: `Misses (${s.misses})`,
+      marker: { color: COLORS.red, size: 4, opacity: 0.55 },
+      hovertemplate: 'Actual: %{x} BCE<br>Estimated: %{y} BCE<extra>Miss</extra>',
+    },
+    {
+      type: 'scatter', mode: 'lines',
+      x: [yMin, yMax], y: [yMin, yMax],
+      name: 'Perfect estimate',
+      line: { color: '#94A3B8', dash: 'dash', width: 1 },
+      hoverinfo: 'skip',
+    },
+  ];
+
+  const scatterLayout = {
+    ...LAYOUT_BASE,
+    xaxis: { title: 'Actual year (BCE)', autorange: 'reversed', showgrid: true, gridcolor: '#F3F4F6' },
+    yaxis: { title: 'Center of estimate (BCE)', autorange: 'reversed', showgrid: true, gridcolor: '#F3F4F6' },
+    legend: { orientation: 'h', y: 1.08, x: 0 },
+    height: 400,
+    margin: { t: 30, b: 60, l: 70, r: 20 },
+  };
+
+  Plotly.newPlot('chart-scatter', scatterTraces, scatterLayout, PLOTLY_CONFIG);
+
+  // -- Deviation histogram --
+  const devTraces = [
+    {
+      type: 'histogram',
+      x: d.deviations.hits,
+      name: `Hits (${s.hits})`,
+      marker: { color: COLORS.green, opacity: 0.75 },
+      xbins: { size: 5 },
+      hovertemplate: 'Deviation: %{x}–%{x+5} yrs<br>Count: %{y}<extra>Hits</extra>',
+    },
+    {
+      type: 'histogram',
+      x: d.deviations.misses,
+      name: `Misses (${s.misses})`,
+      marker: { color: COLORS.red, opacity: 0.75 },
+      xbins: { size: 5 },
+      hovertemplate: 'Deviation: %{x}–%{x+5} yrs<br>Count: %{y}<extra>Misses</extra>',
+    },
+  ];
+
+  const devLayout = {
+    ...LAYOUT_BASE,
+    barmode: 'overlay',
+    xaxis: {
+      title: 'Deviation from true date (years)',
+      range: [0, 120],
+      showgrid: true, gridcolor: '#F3F4F6',
+    },
+    yaxis: { title: 'Count', showgrid: true, gridcolor: '#F3F4F6' },
+    legend: { orientation: 'h', y: 1.08, x: 0 },
+    height: 400,
+    margin: { t: 30, b: 60, l: 60, r: 20 },
+  };
+
+  Plotly.newPlot('chart-deviation', devTraces, devLayout, PLOTLY_CONFIG);
+
+  setInsight('insight-validation',
+    `<strong>Hit rate: ${s.hit_rate}%</strong> (${s.hits} of ${s.total_estimated} estimated tablets).
+     Median deviation on <span style="color:${COLORS.green}">hits</span>:
+     <strong>${s.median_dev_hits} years</strong>.
+     Median deviation on <span style="color:${COLORS.red}">misses</span>:
+     <strong>${s.median_dev_misses} years</strong>.
+     ${s.not_estimated} tablets (${((s.not_estimated / s.total_dated) * 100).toFixed(1)}%)
+     could not be estimated even in the validation setting (isolated nodes in the network).`
+  );
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
+(async () => {
+  try {
+    await Promise.all([
+      renderTimeline(),
+      renderArchives(),
+      renderPeople(),
+      renderValidation(),
+    ]);
+  } catch (err) {
+    console.error('Chart load error:', err);
+  }
+})();
+</script>
+</body>
+</html>
