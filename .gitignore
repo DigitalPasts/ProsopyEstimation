@@ -1,0 +1,29 @@
+# Gephi export (regenerated output — too large to commit)
+*.gexf
+
+# Input data — not committed, must be copied from ProsopyBase
+data/input/*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
