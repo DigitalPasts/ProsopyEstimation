@@ -185,6 +185,14 @@
       width: 100%;
       display: block;
     }
+
+    .chart-caption {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 0.6rem;
+    }
+    .chart-caption strong { color: var(--text); font-weight: 600; }
   </style>
 </head>
 <body>
@@ -237,7 +245,7 @@
       </p>
     </div>
     <div class="chart-wrap">
-      <div id="chart-timeline" class="chart-target">Loading…</div>
+      <div id="chart-timeline" class="chart-target"></div>
     </div>
     <div class="insight" id="insight-timeline">Loading insight…</div>
   </section>
@@ -255,7 +263,7 @@
       </p>
     </div>
     <div class="chart-wrap">
-      <div id="chart-archives" class="chart-target">Loading…</div>
+      <div id="chart-archives" class="chart-target"></div>
     </div>
     <div class="insight" id="insight-archives">Loading insight…</div>
   </section>
@@ -274,7 +282,7 @@
       </p>
     </div>
     <div class="chart-wrap">
-      <div id="chart-people" class="chart-target">Loading…</div>
+      <div id="chart-people" class="chart-target"></div>
     </div>
     <div class="insight" id="insight-people">Loading insight…</div>
   </section>
@@ -285,17 +293,36 @@
       <span class="section-number">04</span>
       <h2>How Accurate Are Our Estimates?</h2>
       <p class="description">
-        Leave-one-out cross-validation: each dated tablet is temporarily removed, its date
-        re-estimated from the remaining corpus, and the estimate compared to the known date.
-        <strong>Hit</strong> = the true date falls within the estimated range (±1 year tolerance).
+        We test the algorithm using <strong>leave-one-out cross-validation</strong>: each of the
+        3,415 pre-dated tablets is temporarily removed from the corpus, and the algorithm tries
+        to re-estimate its date from the remaining data alone. The estimate is compared to the
+        known date. A <strong>hit</strong> means the true date falls inside the estimated
+        range (±1 year tolerance). Of the 3,415 tablets, 50 could not be re-estimated at all
+        (they become isolated — no co-attested person with a known date range when that tablet
+        is removed); these are <em>excluded</em> from both charts below and are not counted as
+        misses. The 173 tablets that are permanently unestimatable (no date, no network
+        connections) never appear in validation.
       </p>
     </div>
     <div class="chart-row">
       <div>
-        <div id="chart-scatter" class="chart-target">Loading…</div>
+        <p class="chart-caption">
+          <strong>Actual year vs. center of estimate</strong> — each point is one validated
+          tablet. The X-axis is the true known date; the Y-axis is the midpoint of the estimated
+          date range ("center of estimate"). Points on the dashed diagonal line would be perfect
+          predictions. Green dots (hits) cluster near the diagonal; red dots (misses) deviate
+          from it.
+        </p>
+        <div id="chart-scatter" class="chart-target"></div>
       </div>
       <div>
-        <div id="chart-deviation" class="chart-target">Loading…</div>
+        <p class="chart-caption">
+          <strong>Distribution of estimation error</strong> — how many years does the center of
+          estimate deviate from the true date? Hits (green) cluster close to 0 because by
+          definition the true date is inside the estimated range. Misses (red) spread further
+          out, showing how far off the algorithm was when it failed.
+        </p>
+        <div id="chart-deviation" class="chart-target"></div>
       </div>
     </div>
     <div class="insight" id="insight-validation">Loading insight…</div>
@@ -332,6 +359,11 @@ const LAYOUT_BASE = {
 
 function setInsight(id, html) {
   document.getElementById(id).innerHTML = html;
+}
+
+// Clear any residual text/children before Plotly renders into a div
+function clearDiv(id) {
+  document.getElementById(id).innerHTML = '';
 }
 
 async function loadJSON(path) {
@@ -379,6 +411,7 @@ async function renderTimeline() {
     margin: { ...LAYOUT_BASE.margin, b: 60 },
   };
 
+  clearDiv('chart-timeline');
   Plotly.newPlot('chart-timeline', traces, layout, PLOTLY_CONFIG);
 
   // Insight: find the 5-yr bin with the most new estimates
@@ -434,6 +467,7 @@ async function renderArchives() {
     margin: { t: 30, b: 60, l: 200, r: 20 },
   };
 
+  clearDiv('chart-archives');
   Plotly.newPlot('chart-archives', traces, layout, PLOTLY_CONFIG);
 
   // Insight: top archive by % newly dated
@@ -485,6 +519,7 @@ async function renderPeople() {
     }],
   };
 
+  clearDiv('chart-people');
   Plotly.newPlot('chart-people', [trace], layout, PLOTLY_CONFIG);
 
   const topPerson    = sorted[sorted.length - 1];
@@ -554,6 +589,7 @@ async function renderValidation() {
     margin: { t: 30, b: 60, l: 70, r: 20 },
   };
 
+  clearDiv('chart-scatter');
   Plotly.newPlot('chart-scatter', scatterTraces, scatterLayout, PLOTLY_CONFIG);
 
   // -- Deviation histogram --
@@ -590,6 +626,7 @@ async function renderValidation() {
     margin: { t: 30, b: 60, l: 60, r: 20 },
   };
 
+  clearDiv('chart-deviation');
   Plotly.newPlot('chart-deviation', devTraces, devLayout, PLOTLY_CONFIG);
 
   setInsight('insight-validation',
