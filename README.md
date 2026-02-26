@@ -6,6 +6,8 @@ This repository implements an iterative algorithm that estimates the date of und
 
 Part of the [Prosobab](https://prosobab.leidenuniv.nl/) analysis framework. Takes as input the preprocessed dataset from [ProsopyBase](https://github.com/DigitalPasts/ProsopyBase).
 
+**[View interactive visualizations →](https://digitalpasts.github.io/ProsopyEstimation/)**
+
 ---
 
 ## Repository Structure
