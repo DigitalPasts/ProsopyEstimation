@@ -133,12 +133,21 @@
       max-width: 720px;
     }
 
-    .chart-wrap { width: 100%; margin-top: 1.5rem; }
+    .chart-wrap {
+      width: 100%;
+      margin-top: 1.5rem;
+      overflow: hidden;
+    }
     .chart-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
       margin-top: 1.5rem;
+    }
+    /* min-width: 0 is critical — prevents grid children from overflowing their cells */
+    .chart-row > div {
+      min-width: 0;
+      overflow: hidden;
     }
     @media (max-width: 680px) { .chart-row { grid-template-columns: 1fr; } }
 
@@ -161,13 +170,20 @@
     }
     footer a { color: var(--blue); text-decoration: none; }
 
-    .spinner {
+    /* Loading placeholder — block, not flex, so Plotly can take over the div cleanly */
+    .chart-placeholder {
+      width: 100%;
+      min-height: 300px;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 200px;
       color: var(--muted);
       font-size: 0.9rem;
+    }
+    /* Once Plotly renders, it replaces the inner content; outer div must be plain block */
+    .chart-target {
+      width: 100%;
+      display: block;
     }
   </style>
 </head>
@@ -221,7 +237,7 @@
       </p>
     </div>
     <div class="chart-wrap">
-      <div id="chart-timeline" class="spinner">Loading…</div>
+      <div id="chart-timeline" class="chart-target">Loading…</div>
     </div>
     <div class="insight" id="insight-timeline">Loading insight…</div>
   </section>
@@ -239,7 +255,7 @@
       </p>
     </div>
     <div class="chart-wrap">
-      <div id="chart-archives" class="spinner">Loading…</div>
+      <div id="chart-archives" class="chart-target">Loading…</div>
     </div>
     <div class="insight" id="insight-archives">Loading insight…</div>
   </section>
@@ -258,7 +274,7 @@
       </p>
     </div>
     <div class="chart-wrap">
-      <div id="chart-people" class="spinner">Loading…</div>
+      <div id="chart-people" class="chart-target">Loading…</div>
     </div>
     <div class="insight" id="insight-people">Loading insight…</div>
   </section>
@@ -276,10 +292,10 @@
     </div>
     <div class="chart-row">
       <div>
-        <div id="chart-scatter" class="spinner">Loading…</div>
+        <div id="chart-scatter" class="chart-target">Loading…</div>
       </div>
       <div>
-        <div id="chart-deviation" class="spinner">Loading…</div>
+        <div id="chart-deviation" class="chart-target">Loading…</div>
       </div>
     </div>
     <div class="insight" id="insight-validation">Loading insight…</div>
