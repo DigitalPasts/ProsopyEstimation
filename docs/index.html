@@ -672,7 +672,7 @@ async function renderThresholdSweep() {
   const traceCoverage = {
     x: xs,
     y: d.newly_estimated,
-    name: 'Previously undated tablets estimated',
+    name: 'Newly estimated tablets',
     type: 'scatter',
     mode: 'lines+markers',
     marker: { size: 5 },
@@ -696,11 +696,6 @@ async function renderThresholdSweep() {
     x0: 17, x1: 17, y0: 0, y1: 1, yref: 'paper',
     line: { color: '#2ca02c', width: 1.5, dash: 'dash' },
   };
-  const marker30 = {
-    type: 'line',
-    x0: 30, x1: 30, y0: 0, y1: 1, yref: 'paper',
-    line: { color: '#9467bd', width: 1.5, dash: 'dash' },
-  };
 
   const layout = {
     title: { text: 'Coverage vs. Precision by Max-Active-Years Threshold', font: { size: 15 } },
@@ -717,16 +712,16 @@ async function renderThresholdSweep() {
       tickfont:  { color: '#DD8452' },
       overlaying: 'y',
       side: 'right',
-      showgrid: false,
+      showgrid: true,
+      gridcolor: '#f5dece',
     },
     annotations: [
       { x: 17, y: 1.04, xref: 'x', yref: 'paper', text: 'threshold=17', showarrow: false,
         font: { color: '#2ca02c', size: 11 } },
-      { x: 30, y: 1.04, xref: 'x', yref: 'paper', text: 'threshold=30', showarrow: false,
-        font: { color: '#9467bd', size: 11 } },
     ],
-    shapes: [marker17, marker30],
-    legend: { x: 0.01, y: 0.99, bgcolor: 'rgba(255,255,255,0.8)', bordercolor: '#ccc', borderwidth: 1 },
+    shapes: [marker17],
+    legend: { x: 0.99, y: 0.01, xanchor: 'right', yanchor: 'bottom',
+              bgcolor: 'rgba(255,255,255,0.8)', bordercolor: '#ccc', borderwidth: 1 },
     margin: { t: 60, r: 80, b: 60, l: 60 },
     plot_bgcolor: '#fafafa',
     paper_bgcolor: '#fff',
