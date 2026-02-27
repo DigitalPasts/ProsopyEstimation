@@ -668,13 +668,11 @@ async function renderThresholdSweep() {
   clearDiv('chart-sweep');
 
   const xs = d.max_active_years;
-  // Absolute count of tablets with a date (pre-dated + newly estimated at each threshold)
-  const totalDated = d.newly_estimated.map(n => n + d.pre_dated);
 
   const traceCoverage = {
     x: xs,
-    y: totalDated,
-    name: 'Tablets with a date (total)',
+    y: d.newly_estimated,
+    name: 'Previously undated tablets estimated',
     type: 'scatter',
     mode: 'lines+markers',
     marker: { size: 5 },
@@ -708,7 +706,7 @@ async function renderThresholdSweep() {
     title: { text: 'Coverage vs. Precision by Max-Active-Years Threshold', font: { size: 15 } },
     xaxis: { title: 'Max active years threshold', dtick: 2, gridcolor: '#eee' },
     yaxis: {
-      title: 'Tablets with a date',
+      title: 'Undated tablets estimated',
       titlefont: { color: '#4C72B0' },
       tickfont:  { color: '#4C72B0' },
       gridcolor: '#eee',
@@ -739,22 +737,22 @@ async function renderThresholdSweep() {
   // Caption
   const idx17 = xs.indexOf(17);
   const idx30 = xs.indexOf(30);
-  const cov17 = idx17 >= 0 ? totalDated[idx17] : '?';
+  const cov17 = idx17 >= 0 ? d.newly_estimated[idx17] : '?';
   const rng17 = idx17 >= 0 ? d.avg_range_yrs[idx17].toFixed(1) : '?';
-  const cov30 = idx30 >= 0 ? totalDated[idx30] : '?';
+  const cov30 = idx30 >= 0 ? d.newly_estimated[idx30] : '?';
   const rng30 = idx30 >= 0 ? d.avg_range_yrs[idx30].toFixed(1) : '?';
   document.getElementById('caption-sweep').textContent =
-    `At threshold=17: ${cov17} tablets dated, avg range ${rng17} yrs. ` +
-    `At threshold=30: ${cov30} tablets dated, avg range ${rng30} yrs.`;
+    `At threshold=17: ${cov17} of ${d.total - d.pre_dated} undated tablets estimated, avg range ${rng17} yrs. ` +
+    `At threshold=30: ${cov30} estimated, avg range ${rng30} yrs.`;
 
   // Insight
-  const maxDated = Math.max(...totalDated);
+  const maxEst = Math.max(...d.newly_estimated);
   const minRange = Math.min(...d.avg_range_yrs);
   setInsight('insight-sweep',
-    `Coverage plateaus around ${maxDated.toLocaleString()} tablets at higher thresholds, while the average ` +
-    `estimated range narrows to ~${minRange.toFixed(1)} years at the strictest setting (threshold=1). ` +
-    `The threshold=17 setting used in the paper sits near the "elbow" — it captures most of the ` +
-    `coverage gain while keeping the estimated range well-constrained.`
+    `At the most permissive setting, up to ${maxEst.toLocaleString()} of the ${(d.total - d.pre_dated).toLocaleString()} ` +
+    `undated tablets receive an estimate. The average estimated range narrows to ~${minRange.toFixed(1)} years ` +
+    `at the strictest setting (threshold=1). The threshold=17 setting used in the paper sits near the ` +
+    `"elbow" — it captures most of the reach while keeping estimated ranges well-constrained.`
   );
 }
 
