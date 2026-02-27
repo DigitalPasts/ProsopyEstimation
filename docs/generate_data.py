@@ -18,8 +18,12 @@ import pandas as pd
 
 ESTIMATION_PATH    = '../data/output/estimation_results.csv'
 VALIDATION_PATH    = '../data/output/validation_results_after_correction.csv'
-PREPROCESSED_PATH  = '../data/input/preprocessed_whole_data.csv'
 OUTPUT_DIR         = 'data'
+
+# Preprocessed data: try ProsopyBase sibling repo first, then local data/input
+_prosopybase = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'ProsopyBase', 'data', 'processed', 'preprocessed_whole_data.csv'))
+_local       = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'input', 'preprocessed_whole_data.csv'))
+PREPROCESSED_PATH  = _prosopybase if os.path.exists(_prosopybase) else _local
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
