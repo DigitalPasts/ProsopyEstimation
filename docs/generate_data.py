@@ -17,7 +17,7 @@ import os
 import pandas as pd
 
 ESTIMATION_PATH    = '../data/output/estimation_results.csv'
-VALIDATION_PATH    = '../data/output/validation_results_after_correction.csv'
+VALIDATION_PATH    = '../data/output/validation_results_after_correction_17.csv'
 OUTPUT_DIR         = 'data'
 
 # Preprocessed data: try ProsopyBase sibling repo first, then local data/input

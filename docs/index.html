@@ -224,7 +224,7 @@
       <div class="stat-label">Unestimatable (2.5%)</div>
     </div>
     <div class="stat">
-      <div class="stat-value green">80.4%</div>
+      <div class="stat-value green">70.1%</div>
       <div class="stat-label">Validation Accuracy</div>
     </div>
   </div>
@@ -297,7 +297,7 @@
         3,415 pre-dated tablets is temporarily removed from the corpus, and the algorithm tries
         to re-estimate its date from the remaining data alone. The estimate is compared to the
         known date. A <strong>hit</strong> means the true date falls inside the estimated
-        range (±1 year tolerance). Of the 3,415 tablets, 7 could not be re-estimated at all
+        range (±1 year tolerance). Of the 3,415 tablets, 45 could not be re-estimated at all
         (they become isolated — no co-attested person with a known date range when that tablet
         is removed); these are <em>excluded</em> from both charts below and are not counted as
         misses. The 114 tablets that are permanently unestimatable (no date, no network
@@ -580,17 +580,17 @@ async function renderValidation() {
   const scatterTraces = [
     {
       type: 'scattergl', mode: 'markers',
-      x: hActual, y: hCoe,
-      name: `Hits (${s.hits})`,
-      marker: { color: COLORS.green, size: 4, opacity: 0.55 },
-      hovertemplate: 'Actual: %{x} BCE<br>Estimated: %{y} BCE<extra>Hit</extra>',
-    },
-    {
-      type: 'scattergl', mode: 'markers',
       x: mActual, y: mCoe,
       name: `Misses (${s.misses})`,
       marker: { color: COLORS.red, size: 4, opacity: 0.55 },
       hovertemplate: 'Actual: %{x} BCE<br>Estimated: %{y} BCE<extra>Miss</extra>',
+    },
+    {
+      type: 'scattergl', mode: 'markers',
+      x: hActual, y: hCoe,
+      name: `Hits (${s.hits})`,
+      marker: { color: COLORS.green, size: 4, opacity: 0.55 },
+      hovertemplate: 'Actual: %{x} BCE<br>Estimated: %{y} BCE<extra>Hit</extra>',
     },
     {
       type: 'scatter', mode: 'lines',
