@@ -328,6 +328,27 @@
     <div class="insight" id="insight-validation">Loading insight…</div>
   </section>
 
+  <!-- ── Section 5: Threshold Sweep ── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <h2>Coverage vs. Precision: Choosing the Activity Threshold</h2>
+    </div>
+    <p class="description">
+      The algorithm uses a <strong>max active years</strong> threshold to decide which individuals can serve as
+      date anchors. Only individuals whose attested activity spans fewer than this many years are used — their
+      narrow window provides a tighter date constraint. If too few anchors qualify, the algorithm automatically
+      falls back to 2× and then 3× the threshold.<br><br>
+      This chart shows how the threshold affects the tradeoff between <strong>coverage</strong> (how many undated
+      tablets receive an estimate) and <strong>precision</strong> (average width of the estimated date range).
+      The two vertical markers show the thresholds used in the paper: <strong>17 years</strong> (optimal for precision)
+      and <strong>30 years</strong> (optimal for coverage).
+    </p>
+    <div id="chart-sweep" class="chart-target"></div>
+    <p class="chart-caption" id="caption-sweep"></p>
+    <div class="insight" id="insight-sweep">Loading insight…</div>
+  </section>
+
 </main>
 
 <footer>
@@ -640,6 +661,102 @@ async function renderValidation() {
   );
 }
 
+// ── 5. Threshold Sweep ────────────────────────────────────────────────────────
+
+async function renderThresholdSweep() {
+  const d = await loadJSON('data/threshold_sweep.json');
+  clearDiv('chart-sweep');
+
+  const xs = d.max_active_years;
+
+  const traceCoverage = {
+    x: xs,
+    y: d.coverage_pct,
+    name: 'Coverage (% of all tablets dated)',
+    type: 'scatter',
+    mode: 'lines+markers',
+    marker: { size: 5 },
+    line: { color: '#4C72B0', width: 2 },
+    yaxis: 'y1',
+  };
+
+  const traceRange = {
+    x: xs,
+    y: d.avg_range_yrs,
+    name: 'Avg. estimated range (years)',
+    type: 'scatter',
+    mode: 'lines+markers',
+    marker: { size: 5 },
+    line: { color: '#DD8452', width: 2, dash: 'dot' },
+    yaxis: 'y2',
+  };
+
+  const marker17 = {
+    type: 'line',
+    x0: 17, x1: 17, y0: 0, y1: 1, yref: 'paper',
+    line: { color: '#2ca02c', width: 1.5, dash: 'dash' },
+  };
+  const marker30 = {
+    type: 'line',
+    x0: 30, x1: 30, y0: 0, y1: 1, yref: 'paper',
+    line: { color: '#9467bd', width: 1.5, dash: 'dash' },
+  };
+
+  const layout = {
+    title: { text: 'Coverage vs. Precision by Max-Active-Years Threshold', font: { size: 15 } },
+    xaxis: { title: 'Max active years threshold', dtick: 2, gridcolor: '#eee' },
+    yaxis: {
+      title: 'Coverage (% tablets dated)',
+      titlefont: { color: '#4C72B0' },
+      tickfont:  { color: '#4C72B0' },
+      range: [0, 100],
+      gridcolor: '#eee',
+    },
+    yaxis2: {
+      title: 'Avg. estimated range (years)',
+      titlefont: { color: '#DD8452' },
+      tickfont:  { color: '#DD8452' },
+      overlaying: 'y',
+      side: 'right',
+      showgrid: false,
+    },
+    annotations: [
+      { x: 17, y: 1.04, xref: 'x', yref: 'paper', text: 'threshold=17', showarrow: false,
+        font: { color: '#2ca02c', size: 11 } },
+      { x: 30, y: 1.04, xref: 'x', yref: 'paper', text: 'threshold=30', showarrow: false,
+        font: { color: '#9467bd', size: 11 } },
+    ],
+    shapes: [marker17, marker30],
+    legend: { x: 0.01, y: 0.99, bgcolor: 'rgba(255,255,255,0.8)', bordercolor: '#ccc', borderwidth: 1 },
+    margin: { t: 60, r: 80, b: 60, l: 60 },
+    plot_bgcolor: '#fafafa',
+    paper_bgcolor: '#fff',
+  };
+
+  Plotly.newPlot('chart-sweep', [traceCoverage, traceRange], layout, { responsive: true });
+
+  // Caption
+  const idx17 = xs.indexOf(17);
+  const idx30 = xs.indexOf(30);
+  const cov17 = idx17 >= 0 ? d.coverage_pct[idx17].toFixed(1) : '?';
+  const rng17 = idx17 >= 0 ? d.avg_range_yrs[idx17].toFixed(1) : '?';
+  const cov30 = idx30 >= 0 ? d.coverage_pct[idx30].toFixed(1) : '?';
+  const rng30 = idx30 >= 0 ? d.avg_range_yrs[idx30].toFixed(1) : '?';
+  document.getElementById('caption-sweep').textContent =
+    `At threshold=17: ${cov17}% of tablets dated, avg range ${rng17} yrs. ` +
+    `At threshold=30: ${cov30}% of tablets dated, avg range ${rng30} yrs.`;
+
+  // Insight
+  const maxCov = Math.max(...d.coverage_pct);
+  const minRange = Math.min(...d.avg_range_yrs);
+  setInsight('insight-sweep',
+    `Coverage plateaus around ${maxCov.toFixed(1)}% at higher thresholds, while the average ` +
+    `estimated range narrows to ~${minRange.toFixed(1)} years at the strictest setting (threshold=1). ` +
+    `The threshold=17 setting used in the paper sits near the "elbow" — it captures most of the ` +
+    `coverage gain while keeping the estimated range well-constrained.`
+  );
+}
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
 
 (async () => {
@@ -649,6 +766,7 @@ async function renderValidation() {
       renderArchives(),
       renderPeople(),
       renderValidation(),
+      renderThresholdSweep(),
     ]);
   } catch (err) {
     console.error('Chart load error:', err);

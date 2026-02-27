@@ -235,4 +235,28 @@ with open(f'{OUTPUT_DIR}/validation.json', 'w', encoding='utf-8') as f:
     json.dump(validation_data, f)
 print(f"  -> validation.json")
 
+# ---------------------------------------------------------------------------
+# 5. Threshold sweep (max_active_years 1–30)
+# ---------------------------------------------------------------------------
+SWEEP_PATH = '../data/output/threshold_sweep_results.csv'
+if os.path.exists(SWEEP_PATH):
+    print("Building threshold sweep data...")
+    sweep = pd.read_csv(SWEEP_PATH)
+    sweep_data = {
+        'max_active_years':  sweep['max_active_years'].tolist(),
+        'newly_estimated':   sweep['newly_estimated'].tolist(),
+        'unestimatable':     sweep['unestimatable'].tolist(),
+        'coverage_pct':      sweep['coverage_pct'].tolist(),
+        'avg_range_yrs':     sweep['avg_range_yrs'].tolist(),
+        'median_range_yrs':  sweep['median_range_yrs'].tolist(),
+        'std_range_yrs':     sweep['std_range_yrs'].tolist(),
+        'pre_dated':         int(sweep['pre_dated'].iloc[0]),
+        'total':             int(sweep['total_estimated'].iloc[0] + sweep['unestimatable'].iloc[0]),
+    }
+    with open(f'{OUTPUT_DIR}/threshold_sweep.json', 'w', encoding='utf-8') as f:
+        json.dump(sweep_data, f)
+    print(f"  -> threshold_sweep.json  ({len(sweep)} thresholds)")
+else:
+    print(f"  Skipping threshold_sweep.json (file not found: {SWEEP_PATH})")
+
 print("\nDone — all JSON files written to docs/data/")

@@ -119,8 +119,12 @@ def validate_known_tablets(df, max_active_years=17, tolerance_years=1):
 
 def validate():
     df = pd.read_csv(preprocessed_prosobab_data).copy()
-    df['Julian date'] = df['Julian date'].fillna('-')
-    df['Split_Julian_dates'] = df['Julian date'].str.split(pat="/").str[0]
+    # Use the error-corrected Split_Julian_dates from the preprocessed CSV directly.
+    # Do NOT re-derive from 'Julian date': the raw column lacks the 25 corrections
+    # applied by error_correction.py (e.g. tablet 4873: 51→531, tablet 4834: 520→620).
+    df['Split_Julian_dates'] = df['Split_Julian_dates'].apply(
+        lambda x: str(int(x)) if pd.notna(x) else None
+    )
     val_results = validate_known_tablets(df)
     val_results.to_csv("../data/output/validation_results_after_correction_17.csv", index=False)
     val_results = pd.read_csv("../data/output/validation_results_after_correction_17.csv")

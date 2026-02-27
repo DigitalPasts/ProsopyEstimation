@@ -5,7 +5,7 @@ from numpy import float64
 def get_fully_dated_rows_by_julian(df):
   col = df['Split_Julian_dates']
   if col.dtype == object or col.dtype.name == "string":
-    return df[df['Split_Julian_dates'].str.isdigit()].copy()
+    return df[df['Split_Julian_dates'].fillna('').str.isdigit()].copy()
   else:
   # elif col.dtype == float64 or col.dtype == 'float64' or col.dtype == 'float32':
     return df[col.notna()].copy()
