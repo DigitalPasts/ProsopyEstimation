@@ -2,14 +2,13 @@
 rerun_pipeline.py
 -----------------
 Re-runs estimation + validation from scratch using the corrected
-preprocessed data (all 25 error corrections applied).
+preprocessed data (Babylonian date fills + 25 error corrections applied).
 
 Run from the scripts/ directory:
     python rerun_pipeline.py
 
 Output files (relative to scripts/):
     ../data/output/estimation_results.csv
-    ../data/output/validation_results_after_correction.csv   (max_active_years=30)
     ../data/output/validation_results_after_correction_17.csv (max_active_years=17)
 """
 
@@ -135,42 +134,44 @@ print(f"  └─ Unestimatable:                 {n_une:>6}  ({n_une/total*100:.1
 print(f"\n  Saved to: {est_output}")
 
 # ---------------------------------------------------------------------------
-# Load preprocessed data for validation (shared)
+# Load preprocessed data (shared for U_iter + validation)
 # ---------------------------------------------------------------------------
-print_section("Loading preprocessed data for validation")
+print_section("Loading preprocessed data")
 df_raw = pd.read_csv(PREPROCESSED_PATH).copy()
-# Use the error-corrected Split_Julian_dates from the preprocessed CSV directly.
 df_raw['Split_Julian_dates'] = df_raw['Split_Julian_dates'].apply(
     lambda x: str(int(x)) if pd.notna(x) else None
 )
 from helpers import get_fully_dated_rows_by_julian
 fully_dated = get_fully_dated_rows_by_julian(df_raw)
-print(f"  Fully-dated tablets available for leave-one-out: {fully_dated['Tablet ID'].nunique()}")
+print(f"  Fully-dated tablets: {fully_dated['Tablet ID'].nunique()}")
 
 # ---------------------------------------------------------------------------
-# STEP 2a: Validation — max_active_years=30  (reproduces after_correction.csv)
+# STEP 1b: U_iter bounds
 # ---------------------------------------------------------------------------
-print_section("STEP 2a: VALIDATION  (max_active_years=30)")
-print("  This reproduces validation_results_after_correction.csv")
-print("  Tiered fallback thresholds: 30 → 60 → 90 years")
-t1 = time.time()
-val_30 = validate_known_tablets(df_raw.copy(), max_active_years=30)
-val30_elapsed = time.time() - t1
-out_30 = os.path.join(OUTPUT_DIR, 'validation_results_after_correction.csv')
-val_30.to_csv(out_30, index=False)
-print(f"\n  Validation (30) completed in {val30_elapsed/60:.1f} min")
-print(f"  Saved to: {out_30}")
-summarize_validation(val_30, "max_active_years=30")
+print_section("STEP 1b: U_iter BOUNDS")
+import importlib
+u_iter_mod = importlib.import_module('u-iter')
+
+u_stats = u_iter_mod.compute_u_iter_both_from_df(
+    df_raw,
+    tablet_col='Tablet ID',
+    person_col='PID',
+    julian_col='Split_Julian_dates',
+    fully_dated_df=fully_dated,
+)
+print(f"\n  U_iter (undated corpus)  : {u_stats['U_iter_undated']:.4f}")
+print(f"  U_iter (dated corpus)    : {u_stats['U_iter_dated']:.4f}")
+print(f"\n  Undated tablets structurally reachable : {len(u_stats['reachable_undated'])} / {u_stats['n_undated_tablets']}")
+print(f"  Dated tablets structurally testable    : {len(u_stats['testable_dated'])} / {u_stats['n_fully_dated_tablets']}")
 
 # ---------------------------------------------------------------------------
-# STEP 2b: Validation — max_active_years=17  (reproduces _17.csv)
+# STEP 2: Validation — max_active_years=17
 # ---------------------------------------------------------------------------
-print_section("STEP 2b: VALIDATION  (max_active_years=17)")
-print("  This reproduces validation_results_after_correction_17.csv")
+print_section("STEP 2: VALIDATION  (max_active_years=17)")
 print("  Tiered fallback thresholds: 17 → 34 → 51 years")
-t2 = time.time()
+t1 = time.time()
 val_17 = validate_known_tablets(df_raw.copy(), max_active_years=17)
-val17_elapsed = time.time() - t2
+val17_elapsed = time.time() - t1
 out_17 = os.path.join(OUTPUT_DIR, 'validation_results_after_correction_17.csv')
 val_17.to_csv(out_17, index=False)
 print(f"\n  Validation (17) completed in {val17_elapsed/60:.1f} min")
@@ -178,21 +179,19 @@ print(f"  Saved to: {out_17}")
 summarize_validation(val_17, "max_active_years=17")
 
 # ---------------------------------------------------------------------------
-# Final comparison
+# Final summary
 # ---------------------------------------------------------------------------
-print_section("COMPARISON SUMMARY")
+print_section("RESULTS SUMMARY")
 
 def quick_stats(df):
     est = df.dropna(subset=['coe'])
     hits = est[est['hit'].map({True: True, False: False, 'True': True, 'False': False}) == True]
     return len(df), len(est), len(hits), round(len(hits)/len(est)*100, 2) if len(est) else 0
 
-t_30, e_30, h_30, r_30 = quick_stats(val_30)
 t_17, e_17, h_17, r_17 = quick_stats(val_17)
 
 print(f"\n  {'Variant':<35} {'Total':>6} {'Estimated':>10} {'Hits':>8} {'Hit Rate':>10}")
 print(f"  {'─'*70}")
-print(f"  {'after_correction (max_active=30)':<35} {t_30:>6} {e_30:>10} {h_30:>8} {r_30:>9.2f}%")
 print(f"  {'after_correction_17 (max_active=17)':<35} {t_17:>6} {e_17:>10} {h_17:>8} {r_17:>9.2f}%")
 
 total_time = time.time() - t0

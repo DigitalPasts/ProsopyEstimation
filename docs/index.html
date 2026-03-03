@@ -202,7 +202,7 @@
   <p class="kicker">ProsopyEstimation · Neo-Babylonian Prosopography</p>
   <h1>In Search of Lost Time — </h1>
   <h1>Estimating Dates of Broken Cuneiform Documents</h1>
-  <p>An iterative algorithm estimates the date of undated Neo-Babylonian legal documents by leveraging the network of co-attested individuals — expanding the datable corpus by over 29%.</p>
+  <p>An iterative algorithm estimates the date of undated Neo-Babylonian legal documents by leveraging the network of co-attested individuals — expanding the datable corpus by over 26%.</p>
 </header>
 
 <!-- ── Stats Bar ── -->
@@ -213,16 +213,16 @@
       <div class="stat-label">Total Tablets</div>
     </div>
     <div class="stat">
-      <div class="stat-value blue">3,415</div>
-      <div class="stat-label">Pre-Dated (74.4%)</div>
+      <div class="stat-value blue">3,522</div>
+      <div class="stat-label">Pre-Dated (76.7%)</div>
     </div>
     <div class="stat">
-      <div class="stat-value orange">1,060</div>
-      <div class="stat-label">Newly Estimated (23.1%)</div>
+      <div class="stat-value orange">949</div>
+      <div class="stat-label">Newly Estimated (20.7%)</div>
     </div>
     <div class="stat">
-      <div class="stat-value gray">114</div>
-      <div class="stat-label">Unestimatable (2.5%)</div>
+      <div class="stat-value gray">118</div>
+      <div class="stat-label">Unestimatable (2.6%)</div>
     </div>
     <div class="stat">
       <div class="stat-value green">70.1%</div>
@@ -294,13 +294,13 @@
       <h2>How Accurate Are Our Estimates?</h2>
       <p class="description">
         We test the algorithm using <strong>leave-one-out cross-validation</strong>: each of the
-        3,415 pre-dated tablets is temporarily removed from the corpus, and the algorithm tries
+        3,522 pre-dated tablets is temporarily removed from the corpus, and the algorithm tries
         to re-estimate its date from the remaining data alone. The estimate is compared to the
         known date. A <strong>hit</strong> means the true date falls inside the estimated
-        range (±1 year tolerance). Of the 3,415 tablets, 45 could not be re-estimated at all
+        range (±1 year tolerance). Of the 3,522 tablets, 45 could not be re-estimated at all
         (they become isolated — no co-attested person with a known date range when that tablet
         is removed); these are <em>excluded</em> from both charts below and are not counted as
-        misses. The 114 tablets that are permanently unestimatable (no date, no network
+        misses. The 118 tablets that are permanently unestimatable (no date, no network
         connections) never appear in validation.
       </p>
     </div>
