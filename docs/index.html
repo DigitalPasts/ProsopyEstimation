@@ -367,7 +367,7 @@ const COLORS = {
   gold:   '#D4A017',
 };
 
-const PLOTLY_CONFIG = { responsive: true, displayModeBar: false };
+const PLOTLY_CONFIG = { responsive: true, displayModeBar: true };
 
 const LAYOUT_BASE = {
   paper_bgcolor: 'rgba(0,0,0,0)',
@@ -727,7 +727,7 @@ async function renderThresholdSweep() {
     paper_bgcolor: '#fff',
   };
 
-  Plotly.newPlot('chart-sweep', [traceCoverage, traceRange], layout, { responsive: true });
+  Plotly.newPlot('chart-sweep', [traceCoverage, traceRange], layout, PLOTLY_CONFIG);
 
   // Caption
   const idx17 = xs.indexOf(17);
